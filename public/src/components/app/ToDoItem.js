@@ -23,7 +23,7 @@ class ToDoItem extends Component {
     
     renderHTML() {
 
-        const toDo = this.props.toDo;
+        const toDo = this.props.todo;
         
         return /*html*/`
         
