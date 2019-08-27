@@ -5,7 +5,7 @@ QUnit.module('To Do List');
 
 test('rendering list from data', assert => {
     // arrange
-    const toDo = {
+    const todo = {
         task: 'Take Out Trash',
         completed: true
     };
@@ -25,7 +25,7 @@ test('rendering list from data', assert => {
     `;
     
     // act
-    const toDoItem = new ToDoItem({ toDo });
+    const toDoItem = new ToDoItem({ todo });
     const html = toDoItem.renderHTML();
 
     
