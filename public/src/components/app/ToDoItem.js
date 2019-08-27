@@ -1,11 +1,30 @@
 import Component from '../Component.js';
 
 class ToDoItem extends Component {
+
+    onRender(dom) {
+        const todo = this.props.todo;
+        const onUpdate = this.props.onUpdate;
+        const onRemove = this.props.onRemove;
+
+        const completedButton = dom.querySelector('.completed-button');
+        completedButton.addEventListener('click', () => {
+            todo.completed = !todo.completed;
+            onUpdate(todo);
+        });
+
+        const removeButton = dom.querySelector('.remove-button');
+        removeButton.addEventListener('click', () => {
+            if(confirm(`Are you sure you want to remove "${todo.task}"?`)) {
+                onRemove(todo);
+            }
+        });
+    }
     
     renderHTML() {
 
         const toDo = this.props.toDo;
-
+        
         return /*html*/`
         
         <li class="todo-item">

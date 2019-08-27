@@ -1,12 +1,14 @@
 import Component from '../Component.js';
 import ToDoItem from './ToDoItem.js';
-import toDoData from '../../../assests/todo-data.js';
 
 class ToDoList extends Component {
 
     onRender(list) {
-        toDoData.forEach(toDo => {
-            const toDoItem = new ToDoItem({ toDo });
+        const toDos = this.props.todos;
+        const onUpdate = this.props.onUpdate;
+        const onRemove = this.props.onRemove;
+        toDos.forEach(toDo => {
+            const toDoItem = new ToDoItem({ toDo, onUpdate, onRemove });
             list.appendChild(toDoItem.renderDOM());
         });
     }

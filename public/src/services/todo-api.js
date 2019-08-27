@@ -30,7 +30,7 @@ export function updateToDo(todo) {
     });
 } 
 
-export function removeType(id) {
+export function removeToDo(id) {
     const url = `${URL}/todos/${id}`;
     return fetch(url, {
         method: 'DELETE'
