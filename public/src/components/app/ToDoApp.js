@@ -38,7 +38,9 @@ class ToDoApp extends Component {
                     .then(() => {
                         const todos = this.state.todos;
                         const index = todos.indexOf(todo);
-                        todos.splice({ todos });
+                        todos.splice(index, 1);
+
+                        toDoList.update({ todos });
                     });
             }
         });

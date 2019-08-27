@@ -20,7 +20,7 @@ class ToDoForm extends Component {
             onAdd(toDoItem)
                 .then(() => {
                     form.reset();
-                    document.activeElement.getBoundingClientRect();
+                    document.activeElement.blur();
                 })
                 .catch(err => {
                     error.textContent = err;
