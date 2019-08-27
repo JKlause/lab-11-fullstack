@@ -21,7 +21,7 @@ app.use(express.json()); // enable reading incoming json data
 app.get('/api/todos', (req, res) => {
     client.query(`
         SELECT
-             task
+             task,
              completed
         FROM todos
     `)
