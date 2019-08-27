@@ -12,7 +12,7 @@ class ToDoForm extends Component {
             event.preventDefault();
 
             const toDoItem = {
-                task: input.value
+                task: input.value,
             };
 
             error.textContent = '';

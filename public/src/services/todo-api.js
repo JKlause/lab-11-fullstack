@@ -16,7 +16,10 @@ export function addToDo(todo) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(todo)
-    });
+    })
+        .then(response => {
+            return response.json();
+        });
 }
 
 export function updateToDo(todo) {
@@ -27,12 +30,18 @@ export function updateToDo(todo) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(todo)
-    });
+    })
+        .then(response => {
+            return response.json();
+        });
 } 
 
 export function removeToDo(id) {
     const url = `${URL}/todos/${id}`;
     return fetch(url, {
         method: 'DELETE'
-    });
+    })
+        .then(response => {
+            return response.json();
+        });
 }

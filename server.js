@@ -21,6 +21,7 @@ app.use(express.json()); // enable reading incoming json data
 app.get('/api/todos', (req, res) => {
     client.query(`
         SELECT
+             id,
              task,
              completed
         FROM todos
@@ -42,7 +43,7 @@ app.post('/api/todos', (req, res) => {
         VALUES ($1, $2)
         RETURNING *;
     `,
-    [todo.task, todo.completed]
+    [todo.task, false]
     )
         .then(result => {
             res.json(result.rows[0]);
@@ -55,7 +56,9 @@ app.post('/api/todos', (req, res) => {
 });
 
 app.put('/api/todos/:id', (req, res) => {
+    console.log(req);
     const id = req.params.id;
+    console.log(id);
     const todo = req.body;
 
     client.query(`
@@ -68,6 +71,7 @@ app.put('/api/todos/:id', (req, res) => {
     [id, todo.task, todo.completed]
     )
         .then(result => {
+            console.log(result);
             res.json(result.rows[0]);
         })
         .catch(err => {
@@ -88,6 +92,7 @@ app.delete('/api/todos/:id', (req, res) => {
     [id]
     )
         .then(result => {
+            console.log(result);
             res.json(result.rows[0]);
         })
         .catch(err => {
