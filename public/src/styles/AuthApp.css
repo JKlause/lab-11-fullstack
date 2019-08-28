@@ -1,0 +1,22 @@
+.errors {
+    font-family: monospace;
+    color: red;
+}
+
+main div.switch, main p.errors {
+    text-align: center;
+}
+
+button {
+    margin: 10px;
+}
+
+input {
+    margin-bottom: 10px;
+}
+
+label {
+    color: rgb(14, 122, 112);
+    font-weight: bold;
+    margin-right: 5px;
+}
