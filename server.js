@@ -56,9 +56,8 @@ app.post('/api/todos', (req, res) => {
 });
 
 app.put('/api/todos/:id', (req, res) => {
-    console.log(req);
     const id = req.params.id;
-    console.log(id);
+
     const todo = req.body;
 
     client.query(`
