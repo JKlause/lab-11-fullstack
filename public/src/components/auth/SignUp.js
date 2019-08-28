@@ -20,7 +20,7 @@ class SignUp extends Component {
 
     renderHTML() {
         return /*html*/`
-            <form class="auth-form standard">
+            <form class="auth-form">
                 <div>
                     <label for="name">Name</label>
                     <input id="name" name="name" required placeholder="Your Name">
