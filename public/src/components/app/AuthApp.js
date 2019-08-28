@@ -9,14 +9,22 @@ class AuthApp extends Component {
         const header = new Header();
         dom.prepend(header.renderDOM());
 
+        const errors = dom.querySelector('.errors');
         const signUpContainer = dom.querySelector('#signup-container');
         const signUp = new SignUp({
             onSignUp: newUser => {
                 errors.textContent = '';
 
-                return 
+                return userSignUp(newUser)
+                    .then(user => {
+                        sucess(user);
+                    })
+                    .catch(err =>{
+                        errors.textContent = err;
+                    });
             }
-        }
+        });
+        signUpContainer.appendChild(signUp.renderDOM());
     }
 
     renderHTML() {
