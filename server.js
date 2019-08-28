@@ -128,6 +128,12 @@ app.delete('/api/todos/:id', (req, res) => {
         }); 
 });
 
+app.get('/api/test', (req, res) => {
+    res.json({
+        message: `the user's id is ${req.userId}`
+    });
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log('server running on PORT', PORT);
