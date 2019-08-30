@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TO Do List</title>
+    <link rel="stylesheet" href="./src/styles/reset.css">
+    <link rel="stylesheet" href="./src/styles/main.css">
+    <link rel="stylesheet" href="./src/styles/header.css">
+</head>
+<body>
+    <header>
+        <h1>To Do List</h1>
+    </header>
+    <main>
+        <div class="list-body">
+            <section class="todo-form-section">
+                <form class="todo-form">
+                    <input name="todo" required>
+                    <button>Add</button>
+                </form>
+                <p class="error"></p>
+            </section>
+            <ul class="todo-list">
+                <li class="todo-item">
+                    <span class="${todo.completed ? 'completed' : ''}">Do Laundry</span>
+                    <div>
+                        <button class="completed-button">
+                            Make Complete
+                        </button>
+                        <button class="remove-button">
+                            🗑
+                        </button>
+                    </div>
+                </li>
+                <li class="todo-item">
+                    <span class="${todo.completed ? 'completed' : ''}">Do Laundry</span>
+                    <div>
+                        <button class="completed-button">
+                            Make Complete
+                        </button>
+                        <button class="remove-button">
+                            🗑
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </main>
+</body>
+</html>

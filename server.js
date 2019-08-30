@@ -5,10 +5,32 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+// Database Client
 const client = require('./lib/client');
 
-// Database Client
-client.connect();
+//Auth
+const ensureAuth = require('./lib/auth/ensure-auth');
+const createAuthRoutes = require('./lib/auth/create-auth-routes');
+const authRoutes = createAuthRoutes({
+    selectUser(email) {
+        return client.query(`
+            SELECT id, email, hash, display_name as "displayName"
+            FROM users
+            WHERE email = $1;
+        `,
+        [email]
+        ).then(result => result.rows[0]);
+    },
+    insertUser(user, hash) {
+        return client.query(`
+            INSERT into users (email, hash, display_name)
+            VALUES ($1, $2, $3)
+            RETURNING id, email, display_name as "displayName";
+        `,
+        [user.email, hash, user.displayName]
+        ).then(result => result.rows[0]);
+    }
+});
 
 // Application Setup
 const app = express();
@@ -18,20 +40,22 @@ app.use(cors()); // enable CORS request
 app.use(express.static('public')); // enable serving files from public
 app.use(express.json()); // enable reading incoming json data
 
-app.get('/api/cats', (req, res) => {
+//setup authentication routes
+app.use('/api/auth', authRoutes);
+
+app.use('/api', ensureAuth);
+
+app.get('/api/todos', (req, res) => {
     client.query(`
         SELECT
-            c.id,
-            c.name,
-            c.type_id,
-            t.name as type,
-            c.url,
-            c.year
-        FROM cats c
-        JOIN types t
-        ON   c.type_id = t.id
-        ORDER BY c.year;
-    `)
+             id,
+             task,
+             completed
+        FROM todos
+        WHERE user_id = $1;
+    `,
+    [req.userId]
+    )
         .then(result => {
             res.json(result.rows);
         })
@@ -42,46 +66,14 @@ app.get('/api/cats', (req, res) => {
         });
 });
 
-app.get('/api/cats/:id', (req, res) => {
-    const id = req.params.id;
-
+app.post('/api/todos', (req, res) => {
+    const todo = req.body;
     client.query(`
-        SELECT
-              c.*,
-              t.name as type
-        FROM  cats c
-        JOIN  types t
-        ON    c.type_id = t.id
-        WHERE c.id = $1
-    `,
-    [id]
-    )
-        .then(result => {
-            const cat = result.rows[0];
-            if(!cat) {
-                res.status(404).json({
-                    error: `Cat id ${id} does not exist`
-                });
-            }
-            else {
-                res.json(result.rows[0]);
-            }
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: err.message || err
-            });
-        });
-});
-
-app.post('/api/cats', (req, res) => {
-    const cat = req.body;
-    client.query(`
-        INSERT INTO cats (name, type_id, url, year, lives, is_sidekick)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO todos (task, completed, user_id)
+        VALUES ($1, $2, $3)
         RETURNING *;
     `,
-    [cat.name, cat.typeId, cat.url, cat.year, cat.lives, cat.isSidekick]
+    [todo.task, false, req.userId]
     )
         .then(result => {
             res.json(result.rows[0]);
@@ -93,104 +85,58 @@ app.post('/api/cats', (req, res) => {
         }); 
 });
 
-app.get('/api/types', (req, res) => {
-    const showAll = (req.query.show && req.query.show.toLowerCase() === 'all');
-    const where = showAll ? '' : 'WHERE inactive = FALSE';
-    
-    client.query(`
-        SELECT
-            id,
-            name,
-            inactive
-        FROM types
-        ${where}
-        ORDER BY name;
-    `)
-        .then(result => {
-            res.json(result.rows);
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: err.message || err
-            });
-        });   
-});
-
-app.post('/api/types', (req, res) => {
-    const type = req.body;
-    client.query(`
-        INSERT INTO types (name)
-        VALUES ($1)
-        RETURNING *;
-    `,
-    [type.name]
-    )
-        .then(result => {
-            res.json(result.rows[0]);
-        })
-        .catch(err => {
-            if(err.code === '23505') {
-                res.status(400).json({
-                    error: `Type "${type.name}" already exists`
-                });
-            }
-            res.status(500).json({
-                error: err.message || err
-            });
-        }); 
-});
-
-app.put('/api/types/:id', (req, res) => {
+app.put('/api/todos/:id', (req, res) => {
     const id = req.params.id;
-    const type = req.body;
+
+    const todo = req.body;
 
     client.query(`
-        UPDATE types
-        SET    name = $2,
-               inactive = $3
+        UPDATE todos
+        SET    task = $2,
+               completed = $3
         WHERE  id = $1
+        AND    user_id = $4
         RETURNING *;
     `,
-    [id, type.name, type.inactive]
+    [id, todo.task, todo.completed, req.userId]
     )
         .then(result => {
+            console.log(result);
             res.json(result.rows[0]);
         })
         .catch(err => {
-            if(err.code === '23505') {
-                res.status(400).json({
-                    error: `Type "${type.name}" already exists`
-                });
-            }
             res.status(500).json({
                 error: err.message || err
             });
         }); 
 });
 
-app.delete('/api/types/:id', (req, res) => {
+app.delete('/api/todos/:id', (req, res) => {
     const id = req.params.id;
 
     client.query(`
-        DELETE FROM types
+        DELETE FROM todos
         WHERE  id = $1
+        AND    user_id = $2
         RETURNING *;
     `,
-    [id]
+    [id, req.userId]
     )
         .then(result => {
+            console.log(result);
             res.json(result.rows[0]);
         })
         .catch(err => {
-            if(err.code === '23503') {
-                res.status(400).json({
-                    error: `Could not remove, type is in use. Make inactive or delete all cats with that type first.`
-                });
-            }
             res.status(500).json({
                 error: err.message || err
             });
         }); 
+});
+
+app.get('/api/test', (req, res) => {
+    res.json({
+        message: `the user's id is ${req.userId}`
+    });
 });
 
 // Start the server
